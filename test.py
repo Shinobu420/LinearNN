@@ -1,8 +1,8 @@
 import torch
 from PIL import Image
-from linear_nn import neuralNetwork, transformData
+from linear_nn import NeuralNetwork, transform_data
 
-#amd specific
+# AMD specific
 torch.set_float32_matmul_precision('high')
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
@@ -10,7 +10,7 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 
 def predict_image(image_path, model):
     img = Image.open(image_path).convert("RGB")
-    img_tensor = transformData(img).unsqueeze(0).to(device)
+    img_tensor = transform_data(img).unsqueeze(0).to(device)
 
     with torch.no_grad():
         output = model(img_tensor)
@@ -24,7 +24,7 @@ def predict_image(image_path, model):
 if __name__ == "__main__":
     print(f"Using {device} device")
 
-    model = neuralNetwork().to(device)
+    model = NeuralNetwork().to(device)
     model.load_state_dict(torch.load("cat_dog_model.pth", map_location=device))
     model.eval()
 
