@@ -2,37 +2,37 @@ import torch
 from torch import nn
 from torch.utils.data import DataLoader
 from torchvision import datasets
-from linear_nn import neuralNetwork, transformData
+from linear_nn import NeuralNetwork, transform_data
 
-#amd specific
+# AMD specific
 torch.set_float32_matmul_precision('high')
 
 device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
-## code runs only in the main process
+# Code runs only in the main process
 if __name__ == "__main__":
     print(f"Using {device} device")
-    dataset = datasets.ImageFolder(root='./PetImages', transform=transformData)
-    dataset_loader= DataLoader(dataset, batch_size=512, shuffle=True, num_workers=6, pin_memory=True)
+    dataset = datasets.ImageFolder(root='./PetImages', transform=transform_data)
+    dataset_loader = DataLoader(dataset, batch_size=512, shuffle=True, num_workers=6, pin_memory=True)
 
-    ## start compilation
-    model = neuralNetwork().to(device)
+    # Start compilation
+    model = NeuralNetwork().to(device)
     optimized_model = torch.compile(model)
-    ## end compilation
+    # End compilation
 
-    ## start training
-    ## loss function
+    # Start training
+    # Loss function
     loss = nn.CrossEntropyLoss()
-    ## optimizer updates weights based on loss
+    # Optimizer updates weights based on loss
     optimizer = torch.optim.Adam(optimized_model.parameters(), lr=0.001)
-    print ("Start training")
+    print("Start training")
     model.train()
     epochs = 10
     for epoch in range(epochs):
         print(f"Epoch {epoch+1}/{epochs}")
-        for batch, (x,y) in enumerate(dataset_loader):
-            x,y = x.to(device), y.to(device)
+        for batch, (x, y) in enumerate(dataset_loader):
+            x, y = x.to(device), y.to(device)
 
             pred = optimized_model(x)
             loss_value = loss(pred, y)
